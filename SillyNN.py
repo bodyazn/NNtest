@@ -26,7 +26,7 @@ class Neuron:
             s += inputs[i] * self.weights[i]
         return Neuron.nonlin(s)
 
-    def nonlin(x, deriv=False, deriv_based_on_sigmoid_output = True):
+    def nonlin(x, deriv=False, deriv_based_on_sigmoid_output=True):
         if deriv:
             if deriv_based_on_sigmoid_output:
                 return x * (1 - x)
@@ -35,14 +35,14 @@ class Neuron:
         return 1 / (1 + math.exp(-x))
 
     def add_input_neuron(self, input_neuron):
-        if self.input_neurons == None:
+        if self.input_neurons is None:
             self.input_neurons = []
         if input_neuron not in self.input_neurons:
             self.input_neurons.append(input_neuron)
             input_neuron.add_output_neuron(self)
 
     def add_output_neuron(self, output_neuron):
-        if self.output_neurons == None:
+        if self.output_neurons is None:
             self.output_neurons = []
         if output_neuron not in self.output_neurons:
             self.output_neurons.append(output_neuron)
@@ -59,9 +59,9 @@ class Neuron:
             o_n.add_input_neuron(self)
 
     def out_to_input_call(self):
-        #print("out_to_input_call in layer: {}".format(self.layer_name))
+        # print("out_to_input_call in layer: {}".format(self.layer_name))
 
-        if self.input_neurons != None:
+        if self.input_neurons is not None:
             self.input_values = [i_n.out_to_input_call() for i_n in self.input_neurons]
         return self.get_output(self.input_values)
 
@@ -75,7 +75,6 @@ class Neuron:
             self.err_count_collected_from_the_right += 1
             if self.err_count_collected_from_the_right < len(self.output_neurons):
                 return  # continue collecting errors from the 'right side'
-
 
         # the change in weight for a single connection will be
 
@@ -105,15 +104,15 @@ class Neuron:
 
 
 class NLayer:
-    def __init__(self, layer_name, num_of_neurons, inputs_per_neuron = 1, input_layer = None, output_layer = None):
+    def __init__(self, layer_name, num_of_neurons, inputs_per_neuron=1, input_layer=None, output_layer=None):
         self.name = layer_name
-        if input_layer != None:
+        if input_layer is not None:
             inputs_per_neuron = len(input_layer.neurons)
         self.neurons = [Neuron(inputs_per_neuron, layer_name) for i in range(num_of_neurons)]
         for n in self.neurons:
-            if input_layer != None:
+            if input_layer is not None:
                 n.register_inputs_neurons(input_layer.neurons)
-            if output_layer != None:
+            if output_layer is not None:
                 n.register_output_neurons(output_layer.neurons)
 
     def register_output_layer(self, output_layer):
@@ -122,7 +121,7 @@ class NLayer:
 
 
     def get_info(self):
-        return (self.name, self.neurons)
+        return self.name, self.neurons
 
 
 '''
@@ -137,8 +136,8 @@ input_layer = NLayer("input", 4)
 output_layer = NLayer("output", 3, 4)
 layer1 = NLayer("hidden 1", 4, 4, input_layer)
 layer2 = NLayer("hidden 2", 4, 4, layer1, output_layer)
-#layer1 = NLayer("hidden 1", 4, 1, input_layer, layer2)
-#layer2.register_output_layer(output_layer)
+# layer1 = NLayer("hidden 1", 4, 1, input_layer, layer2)
+# layer2.register_output_layer(output_layer)
 
 
 learning_set = [
@@ -225,8 +224,8 @@ for epoch in range(30000):
 
     ok_count = 0
     for ls_i in range(len(learning_set)):
-        #print(ls)
-        #print(input_layer.neurons)
+        # print(ls)
+        # print(input_layer.neurons)
         ls = learning_set[ls_i]
         for i in range(len(ls)):
             input_layer.neurons[i].input_values = [ls[i]]
