@@ -3,8 +3,8 @@ import math, random
 
 class Neuron:
 
-    learning_rate = 0.2
-    alpha_to_avoid_local_minimum = 0.3
+    learning_rate = 0.2  # not sure what is best value for current learning set and NN topology
+    alpha_to_avoid_local_minimum = 0.3  # actually it is momentum
 
     def __init__(self, num_of_inputs, layer_name=""):
         self.layer_name = layer_name
