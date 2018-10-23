@@ -3,13 +3,13 @@ import math, random
 
 class Neuron:
 
-    learning_rate = 0.05
-    alpha_to_avoid_local_minimum = 0.2
+    learning_rate = 0.2
+    alpha_to_avoid_local_minimum = 0.3
 
     def __init__(self, num_of_inputs, layer_name=""):
         self.layer_name = layer_name
 
-        self.weights = [random.random() * 2 - 1 for i in range(0, num_of_inputs)]
+        self.weights = [random.random() * 2.0 - 1 for i in range(0, num_of_inputs)]
         self.delta_weights = [0 for i in range(0, num_of_inputs)]
 
         self.input_values = []
@@ -199,12 +199,31 @@ correct_responses = [
     [0, 0, 0]
 ]
 
-for epoch in range(20000):
+
+def nn_print_output(ls, output_layer, correct_response):
+    float_outputs = [round(x.out_to_input_call(), 3) for x in output_layer.neurons]
+    int_outputs = [int(x >= 0.5) for x in float_outputs]
+    is_ok = (int_outputs[0] == correct_response[0] and
+             int_outputs[1] == correct_response[1] and
+             int_outputs[2] == correct_response[2])
+
+    print(ls,
+          "\t", int_outputs[0], int_outputs[1], int_outputs[2],
+          "\texpct: ", correct_response,
+          "\t", float_outputs[0],
+          "\t", float_outputs[1],
+          "\t", float_outputs[2],
+          "\tok" * is_ok)
+
+    return is_ok
+
+for epoch in range(30000):
     if epoch % 100 == 0:
         print(epoch, end="... ")
     if epoch % 1000 == 0:
         print()
 
+    ok_count = 0
     for ls_i in range(len(learning_set)):
         #print(ls)
         #print(input_layer.neurons)
@@ -216,44 +235,24 @@ for epoch in range(20000):
         output_layer.neurons[2].back_propagation(correct_responses[ls_i][2])
 
         if epoch % 1000 == 0:
-            print(ls,
-                  "\t", int(output_layer.neurons[0].out_to_input_call() >= 0.5),
-                  int(output_layer.neurons[1].out_to_input_call() >= 0.5),
-                  int(output_layer.neurons[2].out_to_input_call() >= 0.5),
-                  "\texpected: ", correct_responses[ls_i],
-                  "\t", round(output_layer.neurons[0].out_to_input_call(), 3),
-                  "\t", round(output_layer.neurons[1].out_to_input_call(), 3),
-                  "\t", round(output_layer.neurons[2].out_to_input_call(), 3),
-                    "\tok" * (round(output_layer.neurons[0].out_to_input_call()) == correct_responses[ls_i][0]
-                      and round(output_layer.neurons[1].out_to_input_call()) == correct_responses[ls_i][1]
-                      and round(output_layer.neurons[2].out_to_input_call()) == correct_responses[ls_i][2]))
+            ok_count += nn_print_output(ls, output_layer, correct_responses[ls_i])
+            if ok_count == len(learning_set):
+                print("\n It seems enough for now ;) \n Epochs done:", epoch)
+                break
+    else:
+        continue
+    break
+
 
 #  Final grand total ;)
-print()
+print("\n\t *** Grand Total Output ***")
 ok_count = 0
 for l in range(len(learning_set)):
     ls = learning_set[l]
+
     for i in range(len(ls)):
         input_layer.neurons[i].input_values = [ls[i]]
-        if (round(output_layer.neurons[0].out_to_input_call()) == correct_responses[l][0]
-                    and round(output_layer.neurons[1].out_to_input_call()) == correct_responses[l][1]
-                    and round(output_layer.neurons[2].out_to_input_call()) == correct_responses[l][2]):
-            ok_count += 1
-    print(ls,
-            "\t", int(output_layer.neurons[0].out_to_input_call() >= 0.5),
-            int(output_layer.neurons[1].out_to_input_call() >= 0.5),
-          int(output_layer.neurons[2].out_to_input_call() >= 0.5),
-            "\texpected: ", correct_responses[l],
 
-          "\tok" * (round(output_layer.neurons[0].out_to_input_call()) == correct_responses[l][0]
-                    and round(output_layer.neurons[1].out_to_input_call()) == correct_responses[l][1]
-                    and round(output_layer.neurons[2].out_to_input_call()) == correct_responses[l][2]),
-          "\t", round(output_layer.neurons[0].out_to_input_call(), 3),
-          "\t", round(output_layer.neurons[1].out_to_input_call(), 3),
-        "\t", round(output_layer.neurons[2].out_to_input_call(), 3))
+    ok_count += nn_print_output(ls, output_layer, correct_responses[l])
 
-print(ok_count)
-    #print(output_layer.neurons[0].weights)
-
-
-#print(output_layer.neurons[0].out_to_input_call())
+print(f"OK: {ok_count} ({len(correct_responses)})")
